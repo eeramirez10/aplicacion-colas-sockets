@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Pantalla del publico</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<!-- <body class="container"> -->
+
+<body>
+
+    <table>
+        <tr>
+            <td valign="middle" class="ticket-actual">
+                <span id="lblTicket1" class="ticket-actual-numero ticket">Ticket W</span>
+                <br>
+                <span id="lblEscritorio1" class="ticket-actual-escritorio escritorio">Escritorio W</span>
+            </td>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <span id="lblTicket2" class="ticket-secundario ticket">Ticket X</span>
+                            <br>
+                            <span id="lblEscritorio2" class="escritorio">Escritorio X</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span id="lblTicket3" class="ticket-secundario ticket">Ticket Y</span>
+                            <br>
+                            <span id="lblEscritorio3" class="escritorio">Escritorio Y</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span id="lblTicket4" class="ticket-secundario ticket">Ticket Z</span>
+                            <br>
+                            <span id="lblEscritorio4" class="escritorio">Escritorio Z</span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <script src="js/libs/jquery.min.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+
+    <script>
+        var socket = io();
+
+        let spanArray = Array.from($('span'))
+
+        let lblTicket = spanArray.filter(ticket => ticket.textContent.search('Ticket'))
+
+        let lblEscritorio = spanArray.filter(escritorio => escritorio.textContent.search('Escritorio'))
+
+        let tickets = Array.from(document.querySelectorAll('.ticket')) 
+
+        let escritorios = Array.from(document.querySelectorAll('.escritorio')) 
+
+
+
+
+
+
+        socket.on('estadoActual', function (data) {
+
+
+            let ultimos4 = data.ultimos4;
+
+         
+            actualizaHTML(ultimos4);
+
+        })
+
+        socket.on('ultimos4', function(data){
+            let ultimos4 = data.ultimos4;
+           let audio = new Audio('audio/new-ticket.mp3');
+           audio.play();
+           actualizaHTML(ultimos4)
+        })
+
+
+        function actualizaHTML(ultimos4) {
+
+            for (let [i, ticket] of tickets.entries()){
+
+               
+
+                if(ultimos4[i] === undefined){
+                    ticket.textContent = `Esperando ...`
+                    escritorios[i].textContent = ''
+
+                    
+                }else{
+                    ticket.textContent = `Ticket ${ultimos4[i].numero}`
+                    escritorios[i].textContent = `Escritorio ${ultimos4[i].escritorio}`
+                }
+ 
+                
+            }
+
+/*             for (let [i, ultimo] of ultimos4.entries()) {
+
+                escritorio[i].textContent = `Escritorio ${ultimo.escritorio}`;
+                ticket[i].textContent = `Ticket ${ultimo.numero}`
+            } */
+        }
+    </script>
+</body>
+
+</html>
